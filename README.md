@@ -1,4 +1,6 @@
-# Terminator Lab
+# 🌍 Terminator Lab
+
+**Live Demo:** https://amurlaniakea.github.io/terminator-lab/
 
 Laboratorio interactivo, didáctico y sin dependencias para visualizar el día, la noche y los crepúsculos terrestres sobre un mapa equirectangular. El renderizado se realiza en un único elemento HTML5 `<canvas>` con Canvas 2D y JavaScript nativo.
 
@@ -74,9 +76,9 @@ No se necesita Node.js para utilizar la aplicación en el navegador; solo para e
 
 Se calcula el día del año `N` y la fracción UTC del día `h`. El ángulo anual es:
 
-\[
+$$
 \gamma = \frac{2\pi}{D}\left(N-1+\frac{h-12}{24}\right)
-\]
+$$
 
 donde `D` es 365 o 366 según el año. Esta formulación es la aproximación armónica habitual del algoritmo solar de NOAA.
 
@@ -84,14 +86,14 @@ donde `D` es 365 o 366 según el año. Esta formulación es la aproximación arm
 
 La diferencia entre el tiempo solar aparente y el tiempo solar medio se aproxima en minutos por:
 
-\[
+$$
 \begin{aligned}
 E_t = 229.18(&0.000075 + 0.001868\cos\gamma
 -0.032077\sin\gamma\\
 &-0.014615\cos 2\gamma
 -0.040849\sin 2\gamma)
 \end{aligned}
-\]
+$$
 
 El signo sigue la convención NOAA: `E_t` se suma a los minutos UTC para obtener el tiempo solar verdadero en longitud 0°.
 
@@ -99,13 +101,13 @@ El signo sigue la convención NOAA: `E_t` se suma a los minutos UTC para obtener
 
 La declinación se aproxima en radianes mediante:
 
-\[
+$$
 \begin{aligned}
 \delta ={}& 0.006918 - 0.399912\cos\gamma + 0.070257\sin\gamma\\
 &-0.006758\cos 2\gamma + 0.000907\sin 2\gamma\\
 &-0.002697\cos 3\gamma + 0.00148\sin 3\gamma
 \end{aligned}
-\]
+$$
 
 La latitud subsolar es igual a la declinación solar.
 
@@ -113,16 +115,16 @@ La latitud subsolar es igual a la declinación solar.
 
 El tiempo solar verdadero local, en minutos, es:
 
-\[
+$$
 TST = (UTC_{min} + E_t + 4\lambda)\bmod 1440
-\]
+$$
 
 La longitud subsolar corresponde a `TST = 720` minutos:
 
-\[
+$$
 \lambda_{sub} = \operatorname{wrap}_{[-180,180)}
 \left(\frac{720-UTC_{min}-E_t}{4}\right)
-\]
+$$
 
 `UTC_min` incluye horas, minutos, segundos y milisegundos transcurridos desde medianoche UTC. El factor de cuatro proviene de los cuatro minutos de tiempo solar por grado de longitud.
 
@@ -130,14 +132,14 @@ La longitud subsolar corresponde a `TST = 720` minutos:
 
 Para una posición geográfica de latitud \(\varphi\), longitud \(\lambda\), declinación \(\delta\) y ángulo horario `H`:
 
-\[
+$$
 \sin(\alpha)=\sin\varphi\sin\delta+
 \cos\varphi\cos\delta\cos H
-\]
+$$
 
-\[
+$$
 \alpha = \arcsin(\sin\alpha)
-\]
+$$
 
 La aplicación calcula `α` para el centro de cada píxel del mapa. La localidad elegida solo modifica las lecturas de hora civil y hora solar; no altera la iluminación global del mapa. A partir de la elevación aplica una opacidad de sombreado:
 
@@ -199,6 +201,56 @@ La aproximación de declinación/ecuación del tiempo no resuelve con precisión
 - El SVG es un recurso local del repositorio, generado a partir de los conjuntos cartográficos incluidos con Matplotlib Basemap (costas GSHHS y límites políticos de sus datos de referencia).
 - La cartografía se representa en proyección cilíndrica equidistante/equirectangular: longitud −180°…+180° de izquierda a derecha y latitud +90°…−90° de arriba abajo.
 - Los contornos sirven para visualización educativa; no deben emplearse como cartografía de navegación ni como fuente de mediciones geodésicas.
+
+## 🎓 Actividades didácticas para el aula
+
+Terminator Lab puede utilizarse como recurso de observación e investigación en ciencias, geografía, física y astronomía. Las actividades siguientes proponen que el alumnado formule hipótesis, explore distintas fechas y localidades y contraste sus predicciones con la simulación.
+
+### 1. Sigue la frontera entre el día y la noche
+
+Localiza el terminador y observa qué regiones del planeta están iluminadas y cuáles permanecen en oscuridad. Avanza el tiempo y describe cómo se desplaza la frontera.
+
+**Preguntas:** ¿Por qué el día y la noche no empiezan al mismo tiempo en todos los lugares? ¿El terminador atraviesa siempre los mismos países?
+
+### 2. Investiga la rotación terrestre
+
+Mantén fija la fecha y avanza la simulación. Sigue una localidad y observa cuándo pasa de la noche al día y del día a la noche.
+
+**Preguntas:** ¿Qué movimiento terrestre explica este cambio? ¿Por qué el Sol parece salir por el este y ponerse por el oeste?
+
+### 3. Compara distintas latitudes
+
+Selecciona localidades cercanas al ecuador y otras de latitudes altas. Repite la observación en distintas fechas.
+
+**Preguntas:** ¿La duración del día cambia igual en todas las latitudes? ¿Qué ocurre cerca de los círculos polares?
+
+### 4. Explora equinoccios y solsticios
+
+Compara fechas próximas a los equinoccios de marzo y septiembre y a los solsticios de junio y diciembre. Observa la declinación solar y la distribución de la luz.
+
+**Preguntas:** ¿En qué fechas el día y la noche tienen duraciones aproximadamente iguales? ¿En qué hemisferio se alargan los días durante el solsticio de junio?
+
+### 5. Comprende la elevación solar
+
+Elige una localidad y observa la elevación solar a distintas horas. Relaciona el signo del ángulo con la posición del Sol respecto al horizonte.
+
+**Preguntas:** ¿Qué significa una elevación de 0°? ¿Por qué la elevación máxima diaria suele producirse cerca del mediodía solar?
+
+### 6. Compara la hora civil y la hora solar
+
+Compara la hora del reloj, la hora UTC y la hora solar verdadera. Cambia la longitud geográfica manteniendo una zona horaria y observa cómo cambia la hora solar.
+
+**Preguntas:** ¿Por qué dos ciudades de una misma zona horaria pueden tener mediodías solares diferentes? ¿Qué papel desempeña la longitud?
+
+### Propuesta de trabajo en grupo
+
+1. Cada grupo elige dos localidades de latitudes diferentes.
+2. Formula una predicción sobre la iluminación en una fecha concreta.
+3. Comprueba la predicción en Terminator Lab.
+4. Anota la elevación solar y la hora local de cada localidad.
+5. Explica las diferencias utilizando los conceptos de rotación terrestre, latitud y declinación solar.
+
+**Aprendizajes esperados:** interpretar el terminador; relacionar la rotación terrestre con el ciclo de día y noche; comprender la influencia de la latitud y las estaciones; reconocer las variables de la elevación solar; y distinguir hora civil, UTC y hora solar verdadera.
 
 ## Licencia
 
