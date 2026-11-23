@@ -6,6 +6,8 @@ Laboratorio interactivo, didáctico y sin dependencias para visualizar el día, 
 
 > **Propósito:** visualización educativa y exploración geométrica. No es un producto de navegación, astronomía de precisión ni una fuente para decisiones operativas.
 
+> **⚠️ ADVERTENCIA:** Ver `DISCLAIMER.md` — Terminator Lab es una herramienta educativa, no un producto operativo. No usar para navegación, decisiones de seguridad ni aplicaciones que requieran precisión astronómica certificada.
+
 ![Terminator Lab screenshot](assets/terminator-lab-screenshot.png)
 
 ## Características
@@ -32,8 +34,10 @@ terminator-lab/
 ├── package.json
 ├── README.md
 ├── LICENSE
+├── DISCLAIMER.md
 ├── assets/
-│   └── world-map.svg
+│   ├── world-map.svg
+│   └── terminator-lab-screenshot.png
 └── tests/
     └── solar.test.js
 ```
@@ -253,6 +257,12 @@ Compara la hora del reloj, la hora UTC y la hora solar verdadera. Cambia la long
 5. Explica las diferencias utilizando los conceptos de rotación terrestre, latitud y declinación solar.
 
 **Aprendizajes esperados:** interpretar el terminador; relacionar la rotación terrestre con el ciclo de día y noche; comprender la influencia de la latitud y las estaciones; reconocer las variables de la elevación solar; y distinguir hora civil, UTC y hora solar verdadera.
+
+## 📧 Contacto
+
+- **Autor**: Pedro Sordo Martínez
+- **e-mail**: amurlaniakea@gmail.com
+- **Hugging Face**: [MagoPredator](https://huggingface.co/MagoPredator)
 
 ## Licencia
 
