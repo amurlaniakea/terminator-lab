@@ -6,6 +6,8 @@ Laboratorio interactivo, didáctico y sin dependencias para visualizar el día, 
 
 > **Propósito:** visualización educativa y exploración geométrica. No es un producto de navegación, astronomía de precisión ni una fuente para decisiones operativas.
 
+![Terminator Lab screenshot](assets/terminator-lab-screenshot.png)
+
 ## Características
 
 - Posición subsolar calculada localmente a partir de una fecha/hora UTC.
@@ -255,23 +257,3 @@ Compara la hora del reloj, la hora UTC y la hora solar verdadera. Cambia la long
 ## Licencia
 
 Este repositorio se distribuye bajo GNU Affero General Public License, versión 3 o posterior. Consulta `LICENSE`.
-
-
-### Versión 1.2.1
-
-- Añadido el lema institucional en la cabecera: «Tecnósfera al servicio de la Biósfera.» — «La Paz Es El Camino.»
-- Fórmula de elevación solar presentada con MathML nativo del navegador para una composición matemática real, sin dependencias externas; se conserva debajo el código fuente LaTeX.
-
-
-### Versión 1.2.5
-
-Se elimina de la interfaz la línea de código fuente LaTeX. La expresión matemática visual permanece; también se conservan las variables y la explicación del tiempo solar verdadero.
-
-## Publicación en GitHub Pages y CI
-
-El repositorio incluye dos workflows de GitHub Actions:
-
-- `CI`: ejecuta `npm test` en cada push a `main` y en pull requests.
-- `Deploy GitHub Pages`: vuelve a ejecutar las pruebas y publica los archivos estáticos si pasan.
-
-Para activar la demo, en GitHub abre **Settings → Pages** y selecciona **Source: GitHub Actions**. Después de hacer push a `main`, la URL aparecerá en el workflow `Deploy GitHub Pages` y en **Settings → Pages**.
