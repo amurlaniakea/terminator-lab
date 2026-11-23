@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Pedro Sordo Martínez <amurlaniakea@gmail.com>
+// SPDX-License-Identifier: AGPL-3.0-or-later
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const Solar = require("../solar.js");
