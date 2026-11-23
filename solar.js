@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Pedro Sordo Martínez <amurlaniakea@gmail.com>
+// SPDX-License-Identifier: AGPL-3.0-or-later
 /**
  * Solar position engine — NOAA-style low-precision equations.
  * No dependencies. All public times are JavaScript Date instances (UTC).
