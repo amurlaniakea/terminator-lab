@@ -1,0 +1,14 @@
+{
+  "name": "terminator-lab",
+  "version": "1.2.5",
+  "private": false,
+  "description": "Zero-dependency interactive Earth day/night terminator visualization.",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python3 -m http.server 8000"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

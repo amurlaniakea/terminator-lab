@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="Laboratorio interactivo de iluminación solar, día, noche y crepúsculos terrestres.">
+  <title>Terminator Lab 1.2.1 — Día y noche en la Tierra</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08111f;
+      --panel: #101d30;
+      --panel-2: #14243a;
+      --text: #e8f0fb;
+      --muted: #9fb0c7;
+      --accent: #72c7f2;
+      --line: #263a55;
+      --gold: #f4c66a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% -20%, #18324f 0, var(--bg) 58%);
+      color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .shell { width: min(1240px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 40px; }
+    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
+    .motto { margin: 0 0 7px; color: var(--gold); font-size: clamp(.78rem, 1.5vw, .95rem); font-weight: 650; letter-spacing: .025em; }
+    h1 { margin: 0; font-size: clamp(1.55rem, 3vw, 2.35rem); letter-spacing: -.04em; }
+    .subtitle { margin: 5px 0 0; color: var(--muted); max-width: 720px; }
+    .status {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px;
+      border: 1px solid var(--line); border-radius: 999px; color: var(--muted);
+      white-space: nowrap; font-size: .82rem;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #62d69b; box-shadow: 0 0 12px #62d69b88; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+    .panel { background: linear-gradient(145deg, #122239, #0e1a2b); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 16px 40px #0003; }
+    .map-panel { overflow: hidden; }
+    .map-top { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; border-bottom: 1px solid var(--line); gap: 12px; }
+    .map-top strong { font-size: .93rem; }
+    .map-top span { color: var(--muted); font-size: .8rem; }
+    .canvas-wrap { background: #071321; padding: 12px; }
+    canvas { display: block; width: 100%; aspect-ratio: 2 / 1; height: auto; border-radius: 9px; background: #0b1c2b; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 11px 16px 14px; color: var(--muted); font-size: .78rem; }
+    .key { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 18px; height: 8px; border-radius: 3px; display: inline-block; }
+    .side { display: grid; gap: 14px; }
+    .card { padding: 16px; }
+    .card h2 { margin: 0 0 12px; font-size: .95rem; }
+    .big-time { font-variant-numeric: tabular-nums; font-size: 1.55rem; font-weight: 650; letter-spacing: -.03em; }
+    .date-line { color: var(--muted); font-size: .84rem; }
+    .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
+    .location-grid label { display: grid; gap: 4px; color: var(--muted); font-size: .74rem; }
+    .location-grid input, .location-grid select { min-width: 0; width: 100%; border: 1px solid #36516f; border-radius: 8px; padding: 8px; background: #0b1727; color: var(--text); font: inherit; font-size: .82rem; }
+    .location-grid .wide { grid-column: 1 / -1; }
+    .time-readouts { display: grid; gap: 5px; margin-top: 10px; padding: 10px; border-radius: 10px; background: #0b1727; border: 1px solid #20334c; }
+    .time-readouts div { display: flex; justify-content: space-between; gap: 10px; font-size: .8rem; }
+    .time-readouts span { color: var(--muted); }
+    .time-readouts strong { font-variant-numeric: tabular-nums; text-align: right; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .metric { min-width: 0; padding: 10px; background: #0b1727; border: 1px solid #20334c; border-radius: 10px; }
+    .metric small { display: block; color: var(--muted); font-size: .72rem; }
+    .metric strong { display: block; margin-top: 3px; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+    .control-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+    button {
+      border: 1px solid #36516f; background: #19314b; color: var(--text); border-radius: 9px;
+      padding: 8px 12px; cursor: pointer; font: inherit; font-size: .84rem;
+    }
+    button:hover { background: #234363; }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    button.primary { background: #1d6287; border-color: #398ab2; }
+    button.primary:hover { background: #267ba5; }
+    .range-wrap { margin-top: 15px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .range-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: .72rem; }
+    .hint { margin: 12px 0 0; color: var(--muted); font-size: .78rem; }
+    .event-list { display: grid; gap: 9px; }
+    .event { display: flex; justify-content: space-between; gap: 10px; font-size: .83rem; }
+    .event span { color: var(--muted); }
+    .event strong { font-variant-numeric: tabular-nums; }
+    .formula { color: var(--muted); font-size: .79rem; }
+    .formula code { color: #c6e7fb; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .latex-block { margin: 10px 0 12px; padding: 12px; border: 1px solid #29415e; border-radius: 10px; background: #091625; overflow-wrap: anywhere; }
+    .latex-title { color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .latex-render { color: #e8f0fb; font-family: Georgia, "Times New Roman", serif; font-size: 1.15rem; line-height: 1.8; text-align: center; overflow-x: auto; padding: 5px 0; white-space: nowrap; }
+    .equation { display: inline-flex; align-items: baseline; justify-content: center; gap: .08em; white-space: nowrap; }
+    .equation sub { font-size: .68em; vertical-align: sub; }
+    .latex-source { margin-top: 8px; color: var(--muted); font-size: .76rem; }
+    .latex-source code { display: inline-block; margin-top: 4px; color: #9ed8f4; white-space: normal; overflow-wrap: anywhere; }
+    .latex-render math { font-size: 1.12em; }
+    .latex-block pre { margin: 9px 0 0; white-space: pre-wrap; color: #9ed8f4; font: .72rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    footer { margin-top: 18px; color: var(--muted); font-size: .76rem; text-align: center; }
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .side .card:last-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 20px, 1240px); padding-top: 18px; }
+      header { display: block; }
+      .status { margin-top: 12px; }
+      .side { grid-template-columns: 1fr; }
+      .side .card:last-child { grid-column: auto; }
+      .map-top { align-items: flex-start; flex-direction: column; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="motto">«Tecnósfera al servicio de la Biósfera.» — «La Paz Es El Camino.»</p>
+        <h1>Terminator Lab</h1>
+        <p class="subtitle">Un laboratorio visual de la geometría solar: observa el día, la noche y las tres bandas de crepúsculo sobre la Tierra.</p>
+      </div>
+      <div class="status" id="status"><i class="dot"></i><span>Calculando posición solar…</span></div>
+    </header>
+
+    <section class="layout" aria-label="Simulación de iluminación terrestre">
+      <section class="panel map-panel">
+        <div class="map-top">
+          <strong>Proyección equirectangular · longitud −180° a +180°</strong>
+          <span id="map-caption">Cartografía mundial · contornos geográficos</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="earth" width="1200" height="600" aria-label="Mapa de la Tierra con zonas diurnas, nocturnas y crepúsculos"></canvas>
+        </div>
+        <div class="legend" aria-label="Leyenda">
+          <span class="key"><i class="swatch" style="background:#6d9fbb"></i>Día</span>
+          <span class="key"><i class="swatch" style="background:#f4c66a"></i>Civil (0° a −6°)</span>
+          <span class="key"><i class="swatch" style="background:#b18bc8"></i>Náutico (−6° a −12°)</span>
+          <span class="key"><i class="swatch" style="background:#526d9b"></i>Astronómico (−12° a −18°)</span>
+          <span class="key"><i class="swatch" style="background:#07101d"></i>Noche</span>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel card">
+          <h2>Instante de observación</h2>
+          <div class="big-time" id="clock">--:--:--</div>
+          <div class="date-line" id="date">Hora civil local · --</div>
+          <div class="location-grid">
+            <label class="wide">Localidad de referencia
+              <select id="placeSelect">
+                <option value="mieres">Mieres, Asturias</option>
+                <option value="madrid">Madrid, España</option>
+                <option value="london">Londres, Reino Unido</option>
+                <option value="newyork">Nueva York, EE. UU.</option>
+                <option value="tokyo">Tokio, Japón</option>
+                <option value="tlaxcala">Tlaxcala, México</option>
+                <option value="hawaii">Honolulu, Hawái, EE. UU.</option>
+                <option value="custom">Personalizada</option>
+              </select>
+            </label>
+            <label>Latitud (°)<input id="latitude" type="number" min="-90" max="90" step="0.0001" value="43.25"></label>
+            <label>Longitud (°)<input id="longitude" type="number" min="-180" max="180" step="0.0001" value="-5.78"></label>
+            <label class="wide">Zona horaria IANA<input id="timezone" type="text" value="Europe/Madrid" spellcheck="false"></label>
+            <label class="wide">Fecha y hora civil de la localidad<input id="localDateTime" type="datetime-local" step="60"></label>
+          </div>
+          <div class="time-readouts">
+            <div><span>Hora civil</span><strong id="civilTime">—</strong></div>
+            <div><span>Hora solar verdadera</span><strong id="solarTime">—</strong></div>
+            <div><span>Instante UTC</span><strong id="utcTime">—</strong></div>
+          </div>
+          <div class="control-row">
+            <button id="nowBtn" class="primary" type="button">Ahora</button>
+            <button id="playBtn" type="button" aria-pressed="false">▶ Reproducir</button>
+          </div>
+          <div class="range-wrap">
+            <input id="timeRange" type="range" min="-180" max="180" step="0.25" value="0" aria-label="Desplazamiento temporal en días">
+            <div class="range-labels"><span>−180 días</span><span>Ahora</span><span>+180 días</span></div>
+          </div>
+          <p class="hint">El reloj principal usa la zona horaria de la localidad seleccionada. La hora solar verdadera se calcula aparte. El deslizador desplaza el instante de referencia en ±180 días.</p>
+        </section>
+
+        <section class="panel card">
+          <h2>Geometría solar</h2>
+          <div class="metrics">
+            <div class="metric"><small>Latitud subsolar</small><strong id="subLat">—</strong></div>
+            <div class="metric"><small>Longitud subsolar</small><strong id="subLon">—</strong></div>
+            <div class="metric"><small>Declinación</small><strong id="declination">—</strong></div>
+            <div class="metric"><small>Ecuación del tiempo</small><strong id="eot">—</strong></div>
+            <div class="metric"><small>Elevación solar local</small><strong id="elevation">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel card">
+          <h2>Hitos estacionales aproximados</h2>
+          <div class="event-list">
+            <div class="event"><span>Equinoccio de marzo</span><strong>~20 marzo</strong></div>
+            <div class="event"><span>Solsticio de junio</span><strong>~21 junio</strong></div>
+            <div class="event"><span>Equinoccio de septiembre</span><strong>~22 septiembre</strong></div>
+            <div class="event"><span>Solsticio de diciembre</span><strong>~21 diciembre</strong></div>
+          </div>
+          <p class="hint">Las fechas varían ligeramente según el año. En los equinoccios la declinación solar cruza aproximadamente 0°; en los solsticios alcanza sus extremos.</p>
+        </section>
+
+        <section class="panel card">
+          <h2>Modelo matemático</h2>
+          <p class="formula">
+            La elevación solar local es el ángulo del Sol sobre el horizonte. Se obtiene a partir de la latitud del observador, la declinación solar y el ángulo horario:
+          </p>
+          <div class="latex-block" aria-label="Fórmula de elevación solar">
+            <div class="latex-title">Elevación solar · expresión matemática</div>
+            <div class="latex-render"><span class="equation" role="math" aria-label="Alfa sub s igual a arcoseno de seno de fi por seno de delta más coseno de fi por coseno de delta por coseno de H"><span>α<sub>s</sub> = arcsin (sin φ · sin δ + cos φ · cos δ · cos H)</span></span></div>
+          </div>
+          <p class="formula">
+            <strong>Variables:</strong> φ latitud geográfica; δ declinación solar; H ángulo horario (0° al mediodía solar); αₛ elevación solar.
+            <br><br>Tiempo solar verdadero: <code>UTC + EoT + 4λ</code> (minutos), con longitud λ positiva al este.
+            <br><br>Si αₛ &gt; 0°, el Sol está sobre el horizonte geométrico. El crepúsculo civil, náutico y astronómico termina respectivamente en −6°, −12° y −18°.
+          </p>
+        </section>
+      </aside>
+    </section>
+    <footer>© 2026 Terminator Lab · AGPL-3.0 · Sin garantía; consulte LICENSE para los términos completos.</footer>
+  </main>
+
+  <script src="solar.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const canvas = document.getElementById("earth");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const W = canvas.width, H = canvas.height;
+      const range = document.getElementById("timeRange");
+      const $ = (id) => document.getElementById(id);
+      const map = new Image();
+      map.src = "assets/world-map-1.0.2.svg";
+
+      const places = {
+        mieres: { lat: 43.25, lon: -5.78, tz: "Europe/Madrid" },
+        madrid: { lat: 40.4168, lon: -3.7038, tz: "Europe/Madrid" },
+        london: { lat: 51.5072, lon: -0.1276, tz: "Europe/London" },
+        newyork: { lat: 40.7128, lon: -74.006, tz: "America/New_York" },
+        tokyo: { lat: 35.6762, lon: 139.6503, tz: "Asia/Tokyo" },
+        tlaxcala: { lat: 19.3139, lon: -98.2404, tz: "America/Mexico_City" },
+        hawaii: { lat: 21.3069, lon: -157.8583, tz: "Pacific/Honolulu" }
+      };
+      const state = { offsetDays: 0, playing: false, lastFrame: 0, lastPaint: 0, baseNow: Date.now(), timezone: "Europe/Madrid", latitude: 43.25, longitude: -5.78 };
+      const twilight = [
+        { limit: 0, alpha: 0.04 },
+        { limit: -6, alpha: 0.30 },
+        { limit: -12, alpha: 0.55 },
+        { limit: -18, alpha: 0.76 },
+        { limit: -90, alpha: 0.84 }
+      ];
+
+      function simulatedDate() {
+        return new Date(state.baseNow + state.offsetDays * 86400000);
+      }
+
+      function zonedParts(date, timeZone) {
+        const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).formatToParts(date);
+        return Object.fromEntries(parts.filter(p => p.type !== "literal").map(p => [p.type, Number(p.value)]));
+      }
+      function dateToLocalInput(date, timeZone) {
+        const p = zonedParts(date, timeZone);
+        return `${p.year}-${String(p.month).padStart(2,"0")}-${String(p.day).padStart(2,"0")}T${String(p.hour).padStart(2,"0")}:${String(p.minute).padStart(2,"0")}`;
+      }
+      function localInputToDate(value, timeZone) {
+        const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+        if (!m) throw new Error("Fecha/hora local no válida");
+        const desired = Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5]);
+        let guess = desired;
+        for (let i = 0; i < 4; i++) {
+          const p = zonedParts(new Date(guess), timeZone);
+          const represented = Date.UTC(p.year, p.month-1, p.day, p.hour, p.minute, p.second);
+          guess += desired - represented;
+        }
+        return new Date(guess);
+      }
+      function setLocalInput(date) { $("localDateTime").value = dateToLocalInput(date, state.timezone); }
+      function validateTimeZone(zone) {
+        try { new Intl.DateTimeFormat("en", { timeZone: zone }).format(); return true; }
+        catch { return false; }
+      }
+      function formatClockMinutes(minutes) {
+        const m = ((Math.round(minutes) % 1440) + 1440) % 1440;
+        return `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;
+      }
+
+      function smoothstep(a, b, x) {
+        const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+        return t * t * (3 - 2 * t);
+      }
+
+      function darknessForElevation(elevation) {
+        // Smooth bands centred on the conventional twilight thresholds.
+        if (elevation >= 1.5) return 0;
+        if (elevation >= -4.5) return 0.04 + 0.26 * (1 - smoothstep(-4.5, 1.5, elevation));
+        if (elevation >= -10.5) return 0.30 + 0.25 * (1 - smoothstep(-10.5, -4.5, elevation));
+        if (elevation >= -16.5) return 0.55 + 0.21 * (1 - smoothstep(-16.5, -10.5, elevation));
+        return 0.84;
+      }
+
+      function drawMap() {
+        ctx.fillStyle = "#0b1c2b";
+        ctx.fillRect(0, 0, W, H);
+        if (map.complete && map.naturalWidth) {
+          ctx.drawImage(map, 0, 0, W, H);
+        } else {
+          // Graceful fallback while the SVG loads.
+          ctx.strokeStyle = "#31516a";
+          ctx.lineWidth = 1;
+          for (let x = 0; x <= W; x += W / 12) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+          }
+          for (let y = 0; y <= H; y += H / 6) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+          }
+        }
+      }
+
+      function drawIllumination(date, solar) {
+        const image = ctx.getImageData(0, 0, W, H);
+        const pixels = image.data;
+        const dec = solar.declination * Math.PI / 180;
+        const sinDec = Math.sin(dec), cosDec = Math.cos(dec);
+        const utcMinutes = date.getUTCHours() * 60 + date.getUTCMinutes() +
+          date.getUTCSeconds() / 60 + date.getUTCMilliseconds() / 60000;
+        const eot = solar.equationOfTimeMinutes;
+
+        for (let y = 0; y < H; y++) {
+          const lat = (90 - (y + 0.5) * 180 / H) * Math.PI / 180;
+          const sinLat = Math.sin(lat), cosLat = Math.cos(lat);
+          for (let x = 0; x < W; x++) {
+            const lon = ((x + 0.5) * 360 / W - 180);
+            const tst = ((utcMinutes + eot + 4 * lon) % 1440 + 1440) % 1440;
+            const hourAngle = (tst / 4 - 180) * Math.PI / 180;
+            const sinElevation = Math.max(-1, Math.min(1,
+              sinLat * sinDec + cosLat * cosDec * Math.cos(hourAngle)
+            ));
+            const elevation = Math.asin(sinElevation) * 180 / Math.PI;
+            const alpha = darknessForElevation(elevation);
+            if (alpha <= 0) continue;
+
+            const i = (y * W + x) * 4;
+            // A neutral blue-black overlay preserves land/coastline readability.
+            pixels[i] = Math.round(pixels[i] * (1 - alpha) + 4 * alpha);
+            pixels[i + 1] = Math.round(pixels[i + 1] * (1 - alpha) + 12 * alpha);
+            pixels[i + 2] = Math.round(pixels[i + 2] * (1 - alpha) + 27 * alpha);
+          }
+        }
+        ctx.putImageData(image, 0, 0);
+      }
+
+      function drawTerminator(solar) {
+        const dec = solar.declination * Math.PI / 180;
+        const lon0 = solar.subsolarLongitude;
+        // For each longitude, solve cos(zenith)=0 for latitude.
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,239,190,.95)";
+        ctx.lineWidth = 2;
+        ctx.shadowColor = "rgba(255,205,112,.7)";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        let started = false;
+        for (let lon = -180; lon <= 180; lon += 0.5) {
+          const h = (lon - lon0) * Math.PI / 180;
+          const denom = Math.cos(dec) * Math.cos(h);
+          if (Math.abs(denom) < 1e-6) { started = false; continue; }
+          const tanLat = -Math.tan(dec) / Math.cos(h);
+          const lat = Math.atan(tanLat) * 180 / Math.PI;
+          if (!Number.isFinite(lat) || Math.abs(lat) > 90) { started = false; continue; }
+          const x = (lon + 180) / 360 * W;
+          const y = (90 - lat) / 180 * H;
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawSubsolarPoint(solar) {
+        const x = (solar.subsolarLongitude + 180) / 360 * W;
+        const y = (90 - solar.subsolarLatitude) / 180 * H;
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff2c6"; ctx.shadowColor = "#ffc85b"; ctx.shadowBlur = 18; ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,232,170,.65)"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.restore();
+      }
+
+      function formatAngle(value, suffix) {
+        return `${Math.abs(value).toFixed(2)}° ${value >= 0 ? (suffix === "lat" ? "N" : "E") : (suffix === "lat" ? "S" : "O")}`;
+      }
+
+      function updateReadout(date, solar) {
+        const civil = new Intl.DateTimeFormat("es-ES", { timeZone: state.timezone, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(date);
+        const civilDate = new Intl.DateTimeFormat("es-ES", { timeZone: state.timezone, dateStyle: "full" }).format(date);
+        const localSolar = Solar.positionAt(date, state.latitude, state.longitude);
+        $("clock").textContent = civil;
+        $("date").textContent = `${civilDate} · ${state.timezone}`;
+        $("civilTime").textContent = `${civil} (${state.timezone})`;
+        $("solarTime").textContent = `${formatClockMinutes(localSolar.trueSolarTimeMinutes)} · tiempo solar aparente`;
+        $("utcTime").textContent = date.toISOString().replace("T", " ").slice(0, 19) + " Z";
+        $("subLat").textContent = formatAngle(solar.subsolarLatitude, "lat");
+        $("subLon").textContent = formatAngle(solar.subsolarLongitude, "lon");
+        $("declination").textContent = `${solar.declination >= 0 ? "+" : ""}${solar.declination.toFixed(2)}°`;
+        $("eot").textContent = `${solar.equationOfTimeMinutes >= 0 ? "+" : ""}${solar.equationOfTimeMinutes.toFixed(2)} min`;
+        $("elevation").textContent = `${localSolar.elevation >= 0 ? "+" : ""}${localSolar.elevation.toFixed(2)}°`;
+        $("status").lastElementChild.textContent = state.offsetDays === 0 ? `Tiempo real · ${state.timezone}` : "Simulación temporal";
+      }
+
+      function render(force = false) {
+        const now = Date.now();
+        if (!force && now - state.lastPaint < 180) return;
+        state.lastPaint = now;
+        const date = simulatedDate();
+        if (document.activeElement !== $("localDateTime")) setLocalInput(date);
+        const solar = Solar.solarCoordinates(date);
+        drawMap();
+        drawIllumination(date, solar);
+        drawTerminator(solar);
+        drawSubsolarPoint(solar);
+        updateReadout(date, solar);
+      }
+
+      function frame(timestamp) {
+        if (state.playing) {
+          const delta = state.lastFrame ? Math.min((timestamp - state.lastFrame) / 1000, 0.25) : 0;
+          // Simulation speed: 1 simulated hour per real second.
+          state.offsetDays += delta / 24;
+          range.value = Math.max(-180, Math.min(180, state.offsetDays));
+          if (Math.abs(state.offsetDays) > 180) state.offsetDays = state.offsetDays > 0 ? -180 : 180;
+          render();
+        } else if (state.offsetDays === 0) {
+          state.baseNow = Date.now();
+          render();
+        }
+        state.lastFrame = timestamp;
+        requestAnimationFrame(frame);
+      }
+
+      range.addEventListener("input", () => {
+        state.offsetDays = Number(range.value);
+        if (state.offsetDays !== 0 && state.playing) setPlaying(false);
+        render(true);
+      });
+
+      function commitLocationDate() {
+        const zone = $("timezone").value.trim();
+        const lat = Number($("latitude").value), lon = Number($("longitude").value);
+        if (!validateTimeZone(zone)) { alert("Zona horaria IANA no válida. Ejemplo: Europe/Madrid"); return; }
+        if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lon) || lon < -180 || lon > 180) { alert("Introduce latitud entre −90 y 90 y longitud entre −180 y 180."); return; }
+        state.timezone = zone; state.latitude = lat; state.longitude = lon;
+        try {
+          state.baseNow = localInputToDate($("localDateTime").value, zone).getTime();
+          state.offsetDays = 0; range.value = "0"; setPlaying(false); render(true);
+        } catch (error) { alert(error.message); }
+      }
+      $("placeSelect").addEventListener("change", () => {
+        const place = places[$("placeSelect").value];
+        if (!place) return;
+        $("latitude").value = place.lat; $("longitude").value = place.lon; $("timezone").value = place.tz;
+        state.timezone = place.tz; state.latitude = place.lat; state.longitude = place.lon;
+        setLocalInput(new Date()); state.baseNow = Date.now(); state.offsetDays = 0; range.value = "0"; render(true);
+      });
+      ["latitude", "longitude", "timezone"].forEach(id => $(id).addEventListener("change", () => { $("placeSelect").value = "custom"; commitLocationDate(); }));
+      $("localDateTime").addEventListener("change", commitLocationDate);
+
+      function setPlaying(value) {
+        state.playing = value;
+        $("playBtn").textContent = value ? "Ⅱ Pausar" : "▶ Reproducir";
+        $("playBtn").setAttribute("aria-pressed", String(value));
+        state.lastFrame = 0;
+      }
+      $("playBtn").addEventListener("click", () => setPlaying(!state.playing));
+      $("nowBtn").addEventListener("click", () => {
+        state.offsetDays = 0; state.baseNow = Date.now(); range.value = "0";
+        setLocalInput(new Date(state.baseNow)); setPlaying(false); render(true);
+      });
+
+      state.timezone = $("timezone").value;
+      state.latitude = Number($("latitude").value);
+      state.longitude = Number($("longitude").value);
+      setLocalInput(new Date());
+      map.onload = () => render(true);
+      map.onerror = () => { $("map-caption").textContent = "Mapa simplificado · recurso SVG no disponible"; render(true); };
+      render(true);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
